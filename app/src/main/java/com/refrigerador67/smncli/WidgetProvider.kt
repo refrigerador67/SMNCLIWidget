@@ -28,6 +28,7 @@ class WidgetProvider : AppWidgetProvider() {
                 // Code to be executed in the new thread
                 val jsonData = getWeatherInfoByLocationId(sharedPreferences.getInt("locationid", 10821), sharedPreferences.getString("APIauth", ""))
 
+                if (jsonData != null){
                 val desc = jsonData.getValue("description")
                 val temp = jsonData.getValue("temp")
                 val humidity = jsonData.getValue("humidity")
@@ -35,9 +36,11 @@ class WidgetProvider : AppWidgetProvider() {
                 val wind = jsonData.getValue("wind_speed")
 
                 val widgetText = "$desc\n$temp °C\nHumidity: $humidity%\nPressure: $pressure hPa\nWind: $wind km/h"
+                    Log.i("lol",widgetText)
+                    views.setTextViewText(R.id.textView, widgetText)
+                }
 
-                Log.i("lol",widgetText)
-                views.setTextViewText(R.id.textView, widgetText)
+
                 appWidgetManager.updateAppWidget(appWidgetId, views) // Tell the AppWidgetManager to perform an update on the current widget
             }.start()
         }

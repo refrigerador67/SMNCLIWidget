@@ -73,6 +73,8 @@ public class SMNWeather {
                 response.append(line);
             }
             return new JSONObject(response.toString());
+        } catch (IOException e){
+            return null;
         }
     }
 
