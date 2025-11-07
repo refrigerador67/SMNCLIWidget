@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">SMNCLI</string>
     <string name="settings">Settings</string>
+    <string name="locate">Refresh Location</string>
 
     <!-- Preference Titles -->
     <string name="main_header">Main</string>
