@@ -6,7 +6,6 @@ import android.content.Context
 import android.widget.RemoteViews
 import android.util.Log
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
-import com.nixietab.smncliwork.SMNWeather.getWeatherInfoByLocationId
 
 
 class WidgetProvider : AppWidgetProvider() {
@@ -26,7 +25,7 @@ class WidgetProvider : AppWidgetProvider() {
 
             Thread {
                 // Code to be executed in the new thread
-                val jsonData = getWeatherInfoByLocationId(sharedPreferences.getInt("locationid", 10821), sharedPreferences.getString("APIauth", ""))
+                val jsonData = getWeatherInfo(sharedPreferences.getString("lat", null), sharedPreferences.getString("lon", null))
 
                 if (jsonData != null){
                 val desc = jsonData.getValue("description")
