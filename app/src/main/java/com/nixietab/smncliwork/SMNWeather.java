@@ -17,7 +17,6 @@ import javax.net.ssl.X509TrustManager;
 public class SMNWeather {
 
     private static final String API_BASE_LOCATIONS = "https://ws.smn.gob.ar/map_items/weather";
-    private static final String API_BASE_WEATHER = "https://ws1.smn.gob.ar/v1/weather/location/";
 
     // this gets the list of IDs for the locations using the old api thats stuck in 2022
     public static Map<String, Integer> getAllLocationsWithIds(String jwtToken) throws IOException, JSONException {
@@ -54,7 +53,7 @@ public class SMNWeather {
     }
 
     // actually fetch the data
-    public static JSONObject fetchWeatherData(int locationId, String jwtToken) throws IOException, JSONException {
+    public static JSONObject fetchWeatherData(int locationId, String jwtToken, String API_BASE_WEATHER) throws IOException, JSONException {
         handleSSLHandshake();
         URL url = new URL(API_BASE_WEATHER + locationId);
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
@@ -73,14 +72,14 @@ public class SMNWeather {
                 response.append(line);
             }
             return new JSONObject(response.toString());
-        } catch (IOException e){
+        } catch (IOException e) {
             return null;
         }
     }
 
     // returns the stuff based on the location ID
-    public static Map<String, String> getWeatherInfoByLocationId(int locationId, String jwtToken) throws IOException, JSONException {
-        JSONObject w = fetchWeatherData(locationId, jwtToken);
+    public static Map<String, String> getWeatherInfoByLocationId(int locationId, String jwtToken, String API_BASE) throws IOException, JSONException {
+        JSONObject w = fetchWeatherData(locationId, jwtToken, API_BASE);
         if (w == null) return null;
 
         Map<String, String> info = new HashMap<>();
@@ -106,19 +105,26 @@ public class SMNWeather {
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
-    public static void handleSSLHandshake() { // mmm yeah tasty oh yeas tasty code
-        try { 
+    public static void handleSSLHandshake() { // i still hate this
+        try { // lets try breaking the security!!!!!!
             TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
-                public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
-                public void checkClientTrusted(X509Certificate[] certs, String authType) {}
-                public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[0];
+                }
+
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                }
+
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                }
             }};
 
             SSLContext sc = SSLContext.getInstance("SSL");
             sc.init(null, trustAllCerts, new SecureRandom());
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
             HttpsURLConnection.setDefaultHostnameVerifier((arg0, arg1) -> true);
-        } catch (Exception ignored) {}
-        // no but really dont do this in production
+        } catch (Exception ignored) {// "sir someone got into your house!" i dont care}
+            // no but really dont do this in production
+        }
     }
 }
