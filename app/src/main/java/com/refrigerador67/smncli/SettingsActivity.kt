@@ -4,13 +4,14 @@ import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.preference.PreferenceManager.getDefaultSharedPreferences
 import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceManager
 
 
-class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener  {
+class SettingsActivity : AppCompatActivity()  {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,19 +22,29 @@ class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferen
                 .replace(R.id.settings, SettingsFragment())
                 .commit()
         }
-        val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
 
     }
 
-    class SettingsFragment : PreferenceFragmentCompat() {
+    class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
+            val sharedPreferences by lazy {getDefaultSharedPreferences(context)}
+            sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        }
 
+        override fun onSharedPreferenceChanged(
+            sharedPreferences: SharedPreferences?,
+            key: String?
+        ) {
+            when (sharedPreferences?.getString("provider", "openmeteo")) {
+                "openmeteo" -> {findPreference<PreferenceCategory?>("smnheader")?.isEnabled = false}
+                "smn" -> {findPreference<PreferenceCategory?>("smnheader")?.isEnabled = true}
+            }
         }
-        }
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         val appWidgetId = intent?.extras?.getInt(
             AppWidgetManager.EXTRA_APPWIDGET_ID,
@@ -51,16 +62,6 @@ class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferen
         finish()
 
         return super.onSupportNavigateUp()
-    }
-
-    override fun onSharedPreferenceChanged(
-        sharedPreferences: SharedPreferences?,
-        key: String?
-    ) {
-        when (key.equals("provider").toString()) {
-            "openmeteo" -> {}
-            "opensmn" -> {}
-        }
     }
 }
 
